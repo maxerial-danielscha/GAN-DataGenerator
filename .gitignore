@@ -167,3 +167,6 @@ cython_debug/
 
 data
 training_checkpoints
+
+generated_images
+logs

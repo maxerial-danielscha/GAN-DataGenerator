@@ -13,3 +13,7 @@ data_existing = join(data_path, "existing")
 
 # There you have more of that type of image
 data_generated = join(data_path, "generated")
+
+log_dir = join(cwd, "logs")
+
+image_save_dir = join(cwd, "generated_images")
