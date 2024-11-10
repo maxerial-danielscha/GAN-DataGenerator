@@ -38,6 +38,31 @@ def get_discriminator_model(image_shape):
     img_input = layers.Input(shape=image_shape)
     # Zero pad the input to make the input images size to (32, 32, 1).
     # x = layers.ZeroPadding2D((2, 2))(img_input)
+    # x = conv_block(
+    #     img_input,
+    #     16,
+    #     kernel_size=(5, 5),
+    #     strides=(2, 2),
+    #     use_bn=False,
+    #     use_bias=True,
+    #     activation=layers.LeakyReLU(0.2),
+    #     use_dropout=False,
+    #     drop_value=0.3,
+    # )
+    
+    x = conv_block(
+        img_input,
+        32,
+        kernel_size=(5, 5),
+        strides=(2, 2),
+        use_bn=False,
+        use_bias=True,
+        activation=layers.LeakyReLU(0.2),
+        use_dropout=False,
+        drop_value=0.3,
+    )
+
+    
     x = conv_block(
         img_input,
         64,
@@ -325,17 +350,19 @@ class WGAN(keras.Model):
 """
 
 class GANMonitor(keras.callbacks.Callback):
-    def __init__(self, num_img=6, latent_dim=128, save_dir=""):
+    def __init__(self, num_img=6, latent_dim=128, save_dir="", save_freq = 20):
         self.num_img = num_img
         self.latent_dim = latent_dim
         self.save_dir = save_dir
+        self.save_freq = save_freq  
 
     def on_epoch_end(self, epoch, logs=None):
-        random_latent_vectors = tf.random.normal(shape=(self.num_img, self.latent_dim))
-        generated_images = self.model.generator(random_latent_vectors)
-        generated_images = (generated_images * 127.5) + 127.5
+        if epoch % self.save_freq == 0:
+            random_latent_vectors = tf.random.normal(shape=(self.num_img, self.latent_dim))
+            generated_images = self.model.generator(random_latent_vectors)
+            generated_images = (generated_images * 127.5) + 127.5
 
-        for i in range(self.num_img):
-            img = generated_images[i].numpy()
-            img = keras.utils.array_to_img(img)
-            img.save(os.path.join(self.save_dir,"generated_img_{i}_{epoch}.png".format(i=i, epoch=epoch)))
+            for i in range(self.num_img):
+                img = generated_images[i].numpy()
+                img = keras.utils.array_to_img(img)
+                img.save(os.path.join(self.save_dir,"generated_img_{i}_{epoch}.png".format(i=i, epoch=epoch)))

@@ -16,7 +16,7 @@ IMG_SHAPE = (256, 256, 1)
 NOISE_DIM = 128
 
 
-EPOCHS = 100
+EPOCHS = 4000
 
 
 
@@ -83,6 +83,19 @@ def main():
     
     wgan.fit(train_dataset, batch_size=BATCH_SIZE, epochs=EPOCHS, callbacks=[cbk, tensorboard])
     
+    # add fid and inception score
+    
+    
+    # Define a directory and file name for saving the generator model
+    GENERATOR_SAVE_PATH = os.path.join(config.cwd, "save_model")
+    os.makedirs(GENERATOR_SAVE_PATH, exist_ok=True)
+
+    # Save the generator model after training
+    g_model.save(os.path.join(GENERATOR_SAVE_PATH, "generator.keras"))
+    print(f"Generator model saved to {GENERATOR_SAVE_PATH}")
+
+
+    # model = keras.models.load_model('path/to/location.keras')
 
 
 def load_tf_dataset():
