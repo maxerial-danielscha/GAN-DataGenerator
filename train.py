@@ -11,20 +11,17 @@ import config
 import wgan_gp
 
 BATCH_SIZE = 8
-IMG_SHAPE = (64, 64, 1)
+IMG_SHAPE = (256, 256, 1)
 
 NOISE_DIM = 128
 
 
-EPOCHS = 20
+EPOCHS = 100
 
 
 
-IMAGE_SAVE_DIR = os.path.join(config.image_save_dir, "wgan_gp_real")
-
-
-
-
+IMAGE_SAVE_DIR = os.path.join(config.image_save_dir, "wgan_gp_128")
+os.makedirs(IMAGE_SAVE_DIR, exist_ok=True)
 
 
 
@@ -62,7 +59,7 @@ def main():
     os.makedirs(IMAGE_SAVE_DIR, exist_ok=True)
     os.makedirs(config.log_dir, exist_ok=True)
     
-    cbk = wgan_gp.GANMonitor(num_img=3, latent_dim=NOISE_DIM, save_dir=IMAGE_SAVE_DIR)
+    cbk = wgan_gp.GANMonitor(num_img=1, latent_dim=NOISE_DIM, save_dir=IMAGE_SAVE_DIR)
     tensorboard = keras.callbacks.TensorBoard(log_dir=config.log_dir)
 
     wgan = wgan_gp.WGAN(

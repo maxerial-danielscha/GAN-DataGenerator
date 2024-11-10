@@ -134,6 +134,28 @@ def get_generator_model(noise_dim):
     x = layers.Reshape((8, 8, 256))(x)
     
     
+    x = upsample_block(
+        x,
+        512,
+        layers.LeakyReLU(0.2),
+        strides=(1, 1),
+        use_bias=False,
+        use_bn=True,
+        padding="same",
+        use_dropout=False,
+    )
+    
+    x = upsample_block(
+        x,
+        256,
+        layers.LeakyReLU(0.2),
+        strides=(1, 1),
+        use_bias=False,
+        use_bn=True,
+        padding="same",
+        use_dropout=False,
+    )
+    
     # input 8x8x256
     # output 16x16x128
     x = upsample_block(
@@ -163,7 +185,12 @@ def get_generator_model(noise_dim):
     # input 32x32x64
     # output 64x64x1
     x = upsample_block(
-        x, 1, layers.Activation("tanh"), strides=(1, 1), use_bias=False, use_bn=True
+        x, 
+        1, 
+        layers.Activation("tanh"), 
+        strides=(1, 1), 
+        use_bias=False, 
+        use_bn=True
     )
     # At this point, we have an output which has the same shape as the input, (32, 32, 1).
     # We will use a Cropping2D layer to make it (28, 28, 1).
