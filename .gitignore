@@ -170,3 +170,7 @@ training_checkpoints
 
 generated_images
 logs
+archived
+checkpoints
+
+*keras
