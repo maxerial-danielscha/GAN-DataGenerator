@@ -13,7 +13,7 @@ num_images = 50
 LATENT_DIM = 128
 RESOLUTION = 256
 
-VERSION = "aligned_"
+VERSION = "aligned_decay_genheavy_"
 
 MODEL_SAVE_PATH = os.path.join(config.cwd, f"WGAN_{RESOLUTION}_{VERSION}generator.keras")
 model = keras.models.load_model(MODEL_SAVE_PATH)

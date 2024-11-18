@@ -214,7 +214,8 @@ class WGAN(keras.Model):
         discriminator,
         generator,
         latent_dim,
-        discriminator_extra_steps=2,
+        discriminator_extra_steps=3,
+        generator_extra_steps=1,
         gp_weight=10.0
     ):
         super().__init__()
@@ -222,6 +223,8 @@ class WGAN(keras.Model):
         self.generator = generator
         self.latent_dim = latent_dim
         self.d_steps = discriminator_extra_steps
+        self.g_steps = generator_extra_steps
+
         self.gp_weight = gp_weight
         
 
@@ -258,7 +261,7 @@ class WGAN(keras.Model):
 
         batch_size = tf.shape(real_images)[0]
 
-        # Train discriminator
+        # Train discriminator: generally discriminator should be trained more, as its learning is slowed due to gradient penalty
         for i in range(self.d_steps):
             random_latent_vectors = tf.random.normal(shape=(batch_size, self.latent_dim))
             with tf.GradientTape() as tape:
@@ -276,14 +279,15 @@ class WGAN(keras.Model):
 
 
         # Train Generator
-        random_latent_vectors = tf.random.normal(shape=(batch_size, self.latent_dim))
-        with tf.GradientTape() as tape:
-            generated_images = self.generator(random_latent_vectors, training=True)
-            gen_img_logits = self.discriminator(generated_images, training=True)
-            g_loss = self.g_loss_fn(gen_img_logits)
+        for i in range(self.g_steps):
+            random_latent_vectors = tf.random.normal(shape=(batch_size, self.latent_dim))
+            with tf.GradientTape() as tape:
+                generated_images = self.generator(random_latent_vectors, training=True)
+                gen_img_logits = self.discriminator(generated_images, training=True)
+                g_loss = self.g_loss_fn(gen_img_logits)
 
-        gen_gradient = tape.gradient(g_loss, self.generator.trainable_variables)
-        self.g_optimizer.apply_gradients(zip(gen_gradient, self.generator.trainable_variables))
+            gen_gradient = tape.gradient(g_loss, self.generator.trainable_variables)
+            self.g_optimizer.apply_gradients(zip(gen_gradient, self.generator.trainable_variables))
         
         return {"d_loss": d_loss, "g_loss": g_loss}
     

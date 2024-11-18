@@ -15,7 +15,7 @@ IMG_SHAPE = (256, 256, 1)
 NOISE_DIM = 128
 EPOCHS = 1000
 
-MODEL_NAME = "WGAN_256_aligned_decay"
+MODEL_NAME = "WGAN_256_aligned_decay_genheavy"
 
 LOG_DIR = join(config.log_dir, MODEL_NAME + "_" + str(datetime.now()))
 MODEL_SAVE_PATH = os.path.join(config.cwd, "checkpoints", MODEL_NAME)
@@ -34,16 +34,17 @@ def main():
     lr_schedule = keras.optimizers.schedules.ExponentialDecay(
         initial_learning_rate,
         decay_steps=2500,
-        decay_rate=0.96,
-        staircase=True)
+        decay_rate=0.96)
+    
     generator_optimizer = keras.optimizers.Adam(learning_rate=lr_schedule, beta_1=0.5, beta_2=0.9)
-    discriminator_optimizer = keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5, beta_2=0.9)
+    discriminator_optimizer = keras.optimizers.Adam(learning_rate=lr_schedule, beta_1=0.5, beta_2=0.9)
 
     wgan = wgan_gp_256.WGAN(
         discriminator=d_model,
         generator=g_model,
         latent_dim=NOISE_DIM,
-        discriminator_extra_steps=3
+        discriminator_extra_steps=1,
+        generator_extra_steps=3
     )
     
     wgan.compile(
