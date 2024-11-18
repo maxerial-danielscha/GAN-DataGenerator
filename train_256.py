@@ -13,9 +13,9 @@ import wgan_gp_256
 BATCH_SIZE = 8
 IMG_SHAPE = (256, 256, 1)
 NOISE_DIM = 128
-EPOCHS = 350
+EPOCHS = 1000
 
-MODEL_NAME = "WGAN_256"
+MODEL_NAME = "WGAN_256_aligned_decay"
 
 LOG_DIR = join(config.log_dir, MODEL_NAME + "_" + str(datetime.now()))
 MODEL_SAVE_PATH = os.path.join(config.cwd, "checkpoints", MODEL_NAME)
@@ -29,7 +29,14 @@ def main():
     g_model = wgan_gp_256.get_generator_model(NOISE_DIM)
     g_model.summary()
     
-    generator_optimizer = keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5, beta_2=0.9)
+    
+    initial_learning_rate = 0.0002
+    lr_schedule = keras.optimizers.schedules.ExponentialDecay(
+        initial_learning_rate,
+        decay_steps=2500,
+        decay_rate=0.96,
+        staircase=True)
+    generator_optimizer = keras.optimizers.Adam(learning_rate=lr_schedule, beta_1=0.5, beta_2=0.9)
     discriminator_optimizer = keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5, beta_2=0.9)
 
     wgan = wgan_gp_256.WGAN(
@@ -80,7 +87,7 @@ def get_callbacks() -> list[keras.callbacks.Callback]:
     
 def load_tf_dataset() -> tf.data.Dataset:
     train_dataset = preprocessing.image_dataset_from_directory(
-        config.data_path,
+        os.path.join(os.getcwd(), "data", "aligned"),
         labels=None,
         label_mode=None,
         class_names=None,

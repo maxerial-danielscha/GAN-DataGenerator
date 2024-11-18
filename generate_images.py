@@ -13,7 +13,9 @@ num_images = 50
 LATENT_DIM = 128
 RESOLUTION = 256
 
-MODEL_SAVE_PATH = os.path.join(config.cwd, f"WGAN_{RESOLUTION}_generator.keras")
+VERSION = "aligned_"
+
+MODEL_SAVE_PATH = os.path.join(config.cwd, f"WGAN_{RESOLUTION}_{VERSION}generator.keras")
 model = keras.models.load_model(MODEL_SAVE_PATH)
 
 random_latent_vectors = tf.random.normal(shape=(num_images, LATENT_DIM))
@@ -31,4 +33,4 @@ images  = [gen.numpy() for gen in generated]
 
 
 for i, im in enumerate(images):
-    cv2.imwrite(join(config.data_generated, f"gen_{RESOLUTION}_{i}.png"), im)
+    cv2.imwrite(join(config.data_generated, f"gen_{RESOLUTION}_{VERSION}{i}.png"), im)
